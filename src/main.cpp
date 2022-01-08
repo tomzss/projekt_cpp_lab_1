@@ -20,10 +20,17 @@ int main() {
     for (auto const &image: images)
         std::cout << "loaded file: " << image.getPath().filename().string() << '\n';
 
+    auto scrollpos = 0.f;
+    auto constexpr scrollSpeed = 5.f;
+
+    auto gallery = ImageGallery{images, {{0, 0}, static_cast<sf::Vector2f>(window.getSize())}, 3, 5};
     while (window.isOpen()) {
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
+                case sf::Event::MouseWheelScrolled:
+                    scrollpos += event.mouseWheelScroll.delta * scrollSpeed;
+                    break;
                 case sf::Event::Closed:
                     window.close();
                     break;
@@ -32,9 +39,7 @@ int main() {
             }
         }
         window.clear(sf::Color::Black);
-        auto display = ImageDisplay{images};
-        while (auto sprite = display.nextSprite())
-            window.draw(*sprite);
+        gallery.draw(window, scrollpos);
         window.display();
     }
 }
