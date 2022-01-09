@@ -29,7 +29,7 @@ public:
     /// Width of single image in gallery
     ND float getImageWidth() const;
 
-    void draw(sf::RenderTarget &target, float startPoint);
+    void draw(sf::RenderTarget &target, float startPoint) const;
 
 private:
     sf::FloatRect screenArea;

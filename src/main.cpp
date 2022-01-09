@@ -1,6 +1,7 @@
 #include <iostream>
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <deque>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Event.hpp>
 #include "Tag.hpp"
 #include "Image.hpp"
@@ -8,7 +9,7 @@
 #include "ImageDisplay.hpp"
 
 int main() {
-    auto window = sf::RenderWindow{{600, 400}, "Tag gallery"};
+    auto window = sf::RenderWindow{{600, 900}, "Tag gallery"};
     window.setFramerateLimit(30);
 
     auto tags = std::deque<Tag>{};
@@ -21,15 +22,25 @@ int main() {
         std::cout << "loaded file: " << image.getPath().filename().string() << '\n';
 
     auto scrollpos = 0.f;
-    auto constexpr scrollSpeed = 5.f;
+    auto constexpr scrollSpeed = 30.f;
 
-    auto gallery = ImageGallery{images, {{0, 0}, static_cast<sf::Vector2f>(window.getSize())}, 3, 5};
+    auto const displaySize = sf::Vector2f(window.getSize().x, window.getSize().y - 400);
+    auto const displayPosition = sf::Vector2f{0,100};
+
+    auto frame = sf::RectangleShape{};
+    frame.setFillColor(sf::Color::Transparent);
+    frame.setSize(displaySize);
+    frame.setPosition(displayPosition);
+    frame.setOutlineThickness(5);
+    frame.setOutlineColor(sf::Color::Red);
+
+    auto gallery = ImageGallery{images, {displayPosition, displaySize}, 3, 5};
     while (window.isOpen()) {
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::MouseWheelScrolled:
-                    scrollpos += event.mouseWheelScroll.delta * scrollSpeed;
+                    scrollpos -= event.mouseWheelScroll.delta * scrollSpeed;
                     break;
                 case sf::Event::Closed:
                     window.close();
@@ -40,6 +51,7 @@ int main() {
         }
         window.clear(sf::Color::Black);
         gallery.draw(window, scrollpos);
+        window.draw(frame);
         window.display();
     }
 }
