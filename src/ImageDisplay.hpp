@@ -12,13 +12,13 @@ using ImageIter = Images::const_iterator;
 /// Images displayed on screen as gallery (as "tiles")
 class ImageGallery {
 public:
-    ImageGallery(Images &images, sf::FloatRect const &screenArea, unsigned columns, float gapSize);
+    ImageGallery(Images &images, sf::Rect<unsigned> const &screenArea, unsigned columns, float gapSize);
 
     /// Images to display
     ND Images const &getImages() const;
 
     /// Area on screen do display images on (in pixels)
-    ND sf::FloatRect const &getScreenArea() const;
+    ND sf::Rect<unsigned> const & getScreenArea() const;
 
     /// Number of columns in grid of images
     ND unsigned int getColumns() const;
@@ -29,11 +29,17 @@ public:
     /// Width of single image in gallery
     ND float getImageWidth() const;
 
-    void draw(sf::RenderTarget &target, float startPoint) const;
+    /// Move view by scrollDiff pixels down
+    void scroll(float scrollDiff);
+
+    void setArea(sf::Rect<unsigned> const& newArea);
+
+    void draw(sf::RenderTarget &target) const;
 
 private:
-    sf::FloatRect screenArea;
+    sf::Rect<unsigned> screenArea;
     unsigned columns;
     float gapSize;
     Images& images;
+    float scrollPoint;
 };

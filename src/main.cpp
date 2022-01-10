@@ -9,7 +9,7 @@
 #include "ImageDisplay.hpp"
 
 int main() {
-    auto window = sf::RenderWindow{{600, 900}, "Tag gallery"};
+    auto window = sf::RenderWindow{{700, 400}, "Tag gallery"};
     window.setFramerateLimit(30);
 
     auto tags = std::deque<Tag>{};
@@ -24,23 +24,23 @@ int main() {
     auto scrollpos = 0.f;
     auto constexpr scrollSpeed = 30.f;
 
-    auto const displaySize = sf::Vector2f(window.getSize().x, window.getSize().y - 400);
-    auto const displayPosition = sf::Vector2f{0,100};
-
-    auto frame = sf::RectangleShape{};
-    frame.setFillColor(sf::Color::Transparent);
-    frame.setSize(displaySize);
-    frame.setPosition(displayPosition);
-    frame.setOutlineThickness(5);
-    frame.setOutlineColor(sf::Color::Red);
-
+    auto const displayPosition = sf::Vector2u{0, 0};
+    auto const displaySize = sf::Vector2u{window.getSize().x / 2, window.getSize().y};
     auto gallery = ImageGallery{images, {displayPosition, displaySize}, 3, 5};
+
     while (window.isOpen()) {
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
+                case sf::Event::Resized: {
+                    auto const size_u = sf::Vector2u{event.size.width, event.size.height};
+                    auto const size_f = static_cast<sf::Vector2f>(size_u);
+                    window.setView({size_f * 0.5f, size_f});
+                    gallery.setArea({displayPosition, {size_u.x / 2u, size_u.y}});
+                    break;
+                }
                 case sf::Event::MouseWheelScrolled:
-                    scrollpos -= event.mouseWheelScroll.delta * scrollSpeed;
+                    gallery.scroll(event.mouseWheelScroll.delta * scrollSpeed);
                     break;
                 case sf::Event::Closed:
                     window.close();
@@ -49,9 +49,9 @@ int main() {
                     break;
             }
         }
+
         window.clear(sf::Color::Black);
-        gallery.draw(window, scrollpos);
-        window.draw(frame);
+        gallery.draw(window);
         window.display();
     }
 }
