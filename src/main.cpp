@@ -32,7 +32,6 @@ int main() {
     auto const viewPosition = gallerySize + Vector2u{0, 0};
     auto const viewSize = Vector2u{window.getSize().x / 2, window.getSize().y};
     auto gallery = ImageGallery{images, {galleryPosition, gallerySize}, 3, 5};
-    auto imageViewer = ImageViewer{&selectedTexture, {viewPosition, viewSize}};
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -56,8 +55,14 @@ int main() {
             }
         }
 
+        auto selectedTexture = ;
+
         window.clear(sf::Color::Black);
         gallery.draw(window);
+        if (selectedTexture != nullptr) {
+            auto imageViewer = ImageViewer{*selectedTexture, {viewPosition, viewSize}};
+            imageViewer.draw(window);
+        }
         window.display();
     }
 }

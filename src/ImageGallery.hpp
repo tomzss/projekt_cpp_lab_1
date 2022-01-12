@@ -17,7 +17,7 @@ public:
     ND Images const &getImages() const;
 
     /// Area on screen do display images on (in pixels)
-    ND Rect<unsigned> const & getScreenArea() const;
+    ND Rect<unsigned> const &getScreenArea() const;
 
     /// Number of columns in grid of images
     ND unsigned int getColumns() const;
@@ -31,14 +31,19 @@ public:
     /// Move view by scrollDiff pixels down
     void scroll(float scrollDiff);
 
-    void setArea(Rect<unsigned> const& newArea);
+    void setArea(Rect<unsigned> const &newArea);
 
     void draw(sf::RenderTarget &target) const;
+
+    ND Image *getSelectedImage() const;
 
 private:
     Rect<unsigned> screenArea;
     unsigned columns;
     float gapSize;
-    Images& images;
+    Images &images;
+    Image *selectedImage;
     float scrollPoint;
+
+    void drawBorder(sf::RenderTarget &, Rect<float> const &area) const;
 };
