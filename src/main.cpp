@@ -6,7 +6,8 @@
 #include "Tag.hpp"
 #include "Image.hpp"
 #include "ImageLoader.hpp"
-#include "ImageDisplay.hpp"
+#include "ImageGallery.hpp"
+#include "ImageViewer.hpp"
 
 int main() {
     auto window = sf::RenderWindow{{700, 400}, "Tag gallery"};
@@ -23,20 +24,25 @@ int main() {
 
     auto scrollpos = 0.f;
     auto constexpr scrollSpeed = 30.f;
+    auto zoom = 0.f;
+    auto constexpr zoomSpeed = 30.f;
 
-    auto const displayPosition = sf::Vector2u{0, 0};
-    auto const displaySize = sf::Vector2u{window.getSize().x / 2, window.getSize().y};
-    auto gallery = ImageGallery{images, {displayPosition, displaySize}, 3, 5};
+    auto const galleryPosition = Vector2u{0, 0};
+    auto const gallerySize = Vector2u{window.getSize().x / 2, window.getSize().y};
+    auto const viewPosition = gallerySize + Vector2u{0, 0};
+    auto const viewSize = Vector2u{window.getSize().x / 2, window.getSize().y};
+    auto gallery = ImageGallery{images, {galleryPosition, gallerySize}, 3, 5};
+    auto imageViewer = ImageViewer{&selectedTexture, {viewPosition, viewSize}};
 
     while (window.isOpen()) {
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
                 case sf::Event::Resized: {
-                    auto const size_u = sf::Vector2u{event.size.width, event.size.height};
-                    auto const size_f = static_cast<sf::Vector2f>(size_u);
+                    auto const size_u = Vector2u{event.size.width, event.size.height};
+                    auto const size_f = size_u.cast<float>();
                     window.setView({size_f * 0.5f, size_f});
-                    gallery.setArea({displayPosition, {size_u.x / 2u, size_u.y}});
+                    gallery.setArea({galleryPosition, {size_u.x / 2u, size_u.y}});
                     break;
                 }
                 case sf::Event::MouseWheelScrolled:

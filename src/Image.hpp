@@ -4,7 +4,7 @@
 #include <optional>
 #include <vector>
 #include <SFML/Graphics/Texture.hpp>
-#include "Globals.hpp"
+#include "Nodiscard.hpp"
 #include "filesystem.hpp"
 #include "Tag.hpp"
 

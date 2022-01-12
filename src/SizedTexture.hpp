@@ -2,7 +2,7 @@
 
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Graphics/Sprite.hpp>
-#include "Globals.hpp"
+#include "Nodiscard.hpp"
 
 /// Represents Texture of fixed size (keeping proportions)
 class SizedTexture{
@@ -15,7 +15,7 @@ public:
     /// Texture scaled to fit provided height
     static SizedTexture byHeight(sf::Texture const&, float);
 
-    /// Texture scaled to be big enough to fit in provided area
+    /// Texture scaled to be small enough to fit in provided area
     static SizedTexture byOuterBox(sf::Texture const&, sf::Vector2f const&);
 
     /// Texture scaled to be big enough to be able to cover provided area

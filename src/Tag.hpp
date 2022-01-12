@@ -2,7 +2,7 @@
 
 #include <string_view>
 #include <string>
-#include "Globals.hpp"
+#include "Nodiscard.hpp"
 
 class Tag {
 public:

@@ -1,12 +1,12 @@
 #include "Subtarget.hpp"
 
-sf::Vector2u Subtarget::getSize() const {
-    return {area.width, area.height};
+Vector2u Subtarget::getSize() const {
+    return area.size();
 }
 
-Subtarget::Subtarget(sf::RenderTarget &target, sf::Rect<unsigned> const &area) :
-        area(area),
-        target(target) {
+Subtarget::Subtarget(sf::RenderTarget &target_, Rect<unsigned> const &area_) :
+        area(area_),
+        target(target_) {
 }
 
 void Subtarget::draw(sf::Drawable const &drawable) {
@@ -18,13 +18,11 @@ void Subtarget::draw(sf::Drawable const &drawable) {
 
 sf::View Subtarget::getView() const {
     auto const oldView = target.getView();
-    auto const viewportSize = sf::Vector2f{static_cast<float>(area.width) / oldView.getSize().x,
-                                           static_cast<float>(area.height) / oldView.getSize().y};
-    auto const viewportPos = sf::Vector2f{static_cast<float>(area.left) / oldView.getSize().x,
-                                          static_cast<float>(area.top) / oldView.getSize().y};
+    auto const viewportSize = sf::Vector2f{area.size().cast<float>() / oldView.getSize()};
+    auto const viewportPos = sf::Vector2f{area.position().cast<float>() / oldView.getSize()};
     auto newView = target.getView();
     newView.setViewport({viewportPos, viewportSize});
     newView.setSize(static_cast<sf::Vector2f> (getSize()));
-    newView.setCenter({area.width / 2.f, area.height / 2.f});
+    newView.setCenter(area.size().cast<float>() / 2.f);
     return newView;
 }

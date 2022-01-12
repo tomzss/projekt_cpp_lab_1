@@ -1,5 +1,11 @@
 #include "SizedTexture.hpp"
 
+bool isAreaWiderThanTexture(sf::Vector2f const &area, sf::Texture const &texture) {
+    auto const &areaRatio = area.x / area.y;
+    auto const &textureRatio = static_cast<float>(texture.getSize().x) / static_cast<float>(texture.getSize().y);
+    return areaRatio > textureRatio;
+}
+
 SizedTexture SizedTexture::byWidth(sf::Texture const &texture, float width) {
     auto const &scale = width / static_cast<float>(texture.getSize().x);
     return SizedTexture{texture, scale};
@@ -8,12 +14,6 @@ SizedTexture SizedTexture::byWidth(sf::Texture const &texture, float width) {
 SizedTexture SizedTexture::byHeight(sf::Texture const &texture, float height) {
     auto const &scale = height / static_cast<float>(texture.getSize().y);
     return SizedTexture{texture, scale};
-}
-
-bool isAreaWiderThanTexture(sf::Vector2f const &area, sf::Texture const &texture) {
-    auto const &areaRatio = area.x / area.y;
-    auto const &textureRatio = static_cast<float>(texture.getSize().x) / static_cast<float>(texture.getSize().y);
-    return areaRatio > textureRatio;
 }
 
 SizedTexture SizedTexture::byOuterBox(sf::Texture const &texture, sf::Vector2f const &outerBox) {

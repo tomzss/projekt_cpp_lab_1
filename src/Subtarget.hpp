@@ -1,18 +1,19 @@
 #pragma once
 
 #include <SFML/Graphics/RenderTarget.hpp>
-#include "Globals.hpp"
+#include "sfml/Rect.hpp"
+#include "Nodiscard.hpp"
 
 class Subtarget {
 public:
-    explicit Subtarget(sf::RenderTarget &target, sf::Rect<unsigned> const &area);
+    explicit Subtarget(sf::RenderTarget &target, Rect<unsigned> const &area);
 
-    ND sf::Vector2u getSize() const;
+    ND Vector2u getSize() const;
 
     void draw(sf::Drawable const &drawable);
 
 private:
     sf::RenderTarget &target;
-    sf::Rect<unsigned> area;
+    Rect<unsigned> area;
     ND sf::View getView() const;
 };
