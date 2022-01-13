@@ -5,7 +5,7 @@
 #include "Vector2.hpp"
 
 template<typename T>
-class Rect : private sf::Rect<T> {
+class Rect : public sf::Rect<T> {
     using Parent = sf::Rect<T>;
 public:
     ND T top() const;

@@ -61,7 +61,7 @@ ND Vector2<T> operator+(Vector2<T> const &a, Vector2<T> const &b){
 
 template<typename T>
 ND Vector2<T> operator-(sf::Vector2<T> const &a, Vector2<T> const &b) {
-    return Vector2<T>{a} - b;
+    return a - sf::Vector2<T>{b};
 }
 
 template<typename T>
@@ -77,19 +77,4 @@ bool operator==(Vector2<T> const &a, Vector2<T> const &b) {
 template<typename T>
 bool operator!=(Vector2<T> const &a, Vector2<T> const &b) {
     return not a == b;
-}
-
-
-
-
-
-//
-
-
-
-
-
-template<typename T>
-ND Vector2<T> operator-(Vector2<T> const &a, sf::Vector2<T> const &b) {
-    return a - Vector2<T>{b};
 }

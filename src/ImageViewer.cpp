@@ -11,7 +11,12 @@ ImageViewer::ImageViewer(sf::Texture const &texture, Rect<unsigned> const &area)
 
 void ImageViewer::draw(sf::RenderTarget &target) {
     auto sprite = sf::Sprite{};
-    sprite.setPosition(screenArea.position().cast<float>());
+    auto const position = (screenArea.position() + screenArea.size() / 2u).cast<float>();
     auto const texture = SizedTexture::byOuterBox(sfTexture, screenArea.size().cast<float>());
+    texture.applyScaleAndTextureAndCenter(sprite, position);
     target.draw(sprite);
+}
+
+void ImageViewer::setScreenArea(Rect<unsigned> const &screenArea_) {
+    screenArea = screenArea_;
 }

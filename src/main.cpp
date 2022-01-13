@@ -22,16 +22,17 @@ int main() {
     for (auto const &image: images)
         std::cout << "loaded file: " << image.getPath().filename().string() << '\n';
 
-    auto scrollpos = 0.f;
     auto constexpr scrollSpeed = 30.f;
-    auto zoom = 0.f;
     auto constexpr zoomSpeed = 30.f;
+    auto constexpr minimumImageSize = 130u;
 
     auto const galleryPosition = Vector2u{0, 0};
-    auto const gallerySize = Vector2u{window.getSize().x / 2, window.getSize().y};
-    auto const viewPosition = gallerySize + Vector2u{0, 0};
-    auto const viewSize = Vector2u{window.getSize().x / 2, window.getSize().y};
-    auto gallery = ImageGallery{images, {galleryPosition, gallerySize}, 3, 5};
+    auto gallerySize = [&]() -> Vector2u { return {window.getSize().x / 2, window.getSize().y}; };
+    auto const gap = 10u;
+    auto viewPosition = [&]() -> Vector2u { return {gallerySize().x + gap, 0}; };
+    auto viewSize = [&]() -> Vector2u { return {window.getSize().x / 2 - gap, window.getSize().y}; };
+    auto columns = [&]() -> unsigned { return gallerySize().x / minimumImageSize; };
+    auto gallery = ImageGallery{images, {galleryPosition, gallerySize()}, columns(), 5};
 
     while (window.isOpen()) {
         auto event = sf::Event{};
@@ -42,11 +43,20 @@ int main() {
                     auto const size_f = size_u.cast<float>();
                     window.setView({size_f * 0.5f, size_f});
                     gallery.setArea({galleryPosition, {size_u.x / 2u, size_u.y}});
+                    gallery.setColumnsCount(columns());
                     break;
                 }
                 case sf::Event::MouseWheelScrolled:
                     gallery.scroll(event.mouseWheelScroll.delta * scrollSpeed);
                     break;
+                case sf::Event::MouseButtonPressed: {
+                    if (event.mouseButton.x < 0 or event.mouseButton.y < 0)
+                        break;
+                    auto const mousePos = Vector2i{event.mouseButton.x, event.mouseButton.y}.cast<unsigned>();
+                    if (auto pos = gallery.globalPosToInAreaPos(mousePos))
+                        gallery.pressed(*pos);
+                    break;
+                }
                 case sf::Event::Closed:
                     window.close();
                     break;
@@ -55,12 +65,13 @@ int main() {
             }
         }
 
-        auto selectedTexture = ;
+        auto selectedImage = gallery.getSelectedImage();
 
         window.clear(sf::Color::Black);
         gallery.draw(window);
-        if (selectedTexture != nullptr) {
-            auto imageViewer = ImageViewer{*selectedTexture, {viewPosition, viewSize}};
+        if (selectedImage != nullptr) {
+            auto selectedTexture = selectedImage->getTexture();
+            auto imageViewer = ImageViewer{selectedTexture, {viewPosition(), viewSize()}};
             imageViewer.draw(window);
         }
         window.display();

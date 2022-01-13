@@ -16,13 +16,13 @@ SizedTexture SizedTexture::byHeight(sf::Texture const &texture, float height) {
     return SizedTexture{texture, scale};
 }
 
-SizedTexture SizedTexture::byOuterBox(sf::Texture const &texture, sf::Vector2f const &outerBox) {
+SizedTexture SizedTexture::byOuterBox(sf::Texture const &texture, Vector2f const &outerBox) {
     if (isAreaWiderThanTexture(outerBox, texture))
         return byHeight(texture, outerBox.y);
     return byWidth(texture, outerBox.x);
 }
 
-SizedTexture SizedTexture::byInnerBox(sf::Texture const &texture, sf::Vector2f const &innerBox) {
+SizedTexture SizedTexture::byInnerBox(sf::Texture const &texture, Vector2f const &innerBox) {
     if (isAreaWiderThanTexture(innerBox, texture))
         return byWidth(texture, innerBox.x);
     return byHeight(texture, innerBox.y);
@@ -47,4 +47,10 @@ void SizedTexture::applyScaleAndTexture(sf::Sprite &sprite) const {
 
 sf::Vector2f SizedTexture::getSize() const {
     return static_cast<sf::Vector2f>(sfTexture.getSize()) * scale;
+}
+
+void SizedTexture::applyScaleAndTextureAndCenter(sf::Sprite &sprite, Vector2f const &center) const {
+    applyScaleAndTexture(sprite);
+    auto const size = Vector2u{sfTexture.getSize()}.cast<float>()*scale;
+    sprite.setPosition(center - size / 2.f);
 }

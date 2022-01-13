@@ -33,17 +33,25 @@ public:
 
     void setArea(Rect<unsigned> const &newArea);
 
+    /// Maps global position to local. If position is outside area, returns std::nullopt
+    ND std::optional<Vector2u> globalPosToInAreaPos(Vector2u const &) const;
+
+    /// mousePos relative to area
+    void pressed(Vector2u const &mousePos);
+
     void draw(sf::RenderTarget &target) const;
 
-    ND Image *getSelectedImage() const;
+    ND Image const *getSelectedImage() const;
+    void setColumnsCount(unsigned columns);
 
 private:
     Rect<unsigned> screenArea;
     unsigned columns;
     float gapSize;
     Images &images;
-    Image *selectedImage;
+    Image const *selectedImage;
     float scrollPoint;
 
     void drawBorder(sf::RenderTarget &, Rect<float> const &area) const;
+    ND Image const &getImageByGridCoords(std::size_t x, std::size_t y) const;
 };
