@@ -26,7 +26,7 @@ public:
     ND float getGapSize() const;
 
     /// Width of single image in gallery
-    ND float getImageWidth() const;
+    ND float imageSize() const;
 
     /// Move view by scrollDiff pixels down
     void scroll(float scrollDiff);
@@ -53,5 +53,9 @@ private:
     float scrollPoint;
 
     void drawBorder(sf::RenderTarget &, Rect<float> const &area) const;
-    ND Image const &getImageByGridCoords(std::size_t x, std::size_t y) const;
+    ND Image const *getImageByGridCoords(std::size_t x, std::size_t y) const;
+
+    /// Prevents scrolling out of view. Call after changing scroll/view
+    void fixScrollPoint();
+    unsigned long rows() const;
 };

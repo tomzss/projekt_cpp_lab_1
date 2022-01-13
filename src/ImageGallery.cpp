@@ -4,7 +4,15 @@
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <numeric>
 #include <cmath>
+#include <concepts>
 #include <SFML/Graphics/RectangleShape.hpp>
+
+auto divRoundUp(std::integral auto a, std::integral auto b) {
+    auto const result = a / b;
+    if (a % b != 0)
+        return a + 1;
+    return result;
+}
 
 Images const &ImageGallery::getImages() const {
     return images;
@@ -22,7 +30,7 @@ float ImageGallery::getGapSize() const {
     return gapSize;
 }
 
-float ImageGallery::getImageWidth() const {
+float ImageGallery::imageSize() const {
     auto const columnsF = static_cast<float>(columns);
     auto const gapsCount = columnsF - 1;
     auto const gapsSummarySize = gapsCount * gapSize;
@@ -33,26 +41,27 @@ float ImageGallery::getImageWidth() const {
 void ImageGallery::draw(sf::RenderTarget &target) const {
     auto subtarget = Subtarget{target, screenArea};
 
-    auto const imageSize = getImageWidth(); // images are square
-    auto const rowWidth = imageSize + gapSize;
+    auto const rowWidth = imageSize() + gapSize;
     auto const firstVisibleRow = static_cast<std::size_t>(std::max<float>(
-            0, std::floor(scrollPoint / imageSize)));
+            0, std::floor(scrollPoint / imageSize())));
     auto const lastVisibleRow = std::min<std::size_t>(
             static_cast<int>(images.size() - 1),
-            std::ceil((scrollPoint + static_cast<float>(screenArea.height())) / imageSize));
+            std::ceil((scrollPoint + static_cast<float>(screenArea.height())) / imageSize()));
 
     for (auto row = firstVisibleRow; row != lastVisibleRow; ++row) {
         auto const rowPosY = static_cast<float>(row) * rowWidth - scrollPoint;
         for (auto column = 0u; column != columns; ++column) {
-            if (row * columns + columns > images.size())
+
+            auto const *imagePtr = getImageByGridCoords(column, row);
+            if (imagePtr == nullptr)
                 return;
 
-            auto const &image = getImageByGridCoords(column, row);
-            auto const &texture = SizedTexture::byOuterBox(image.getTexture(), {imageSize, imageSize});
+            auto const &image = *imagePtr;
+            auto const &texture = SizedTexture::byOuterBox(image.getTexture(), {imageSize(), imageSize()});
             auto const &position = Vector2f{static_cast<float>(column) * rowWidth, rowPosY};
 
             auto sprite = sf::Sprite{};
-            texture.applyScaleAndTextureAndCenter(sprite, position + Vector2f{imageSize, imageSize} / 2.f);
+            texture.applyScaleAndTextureAndCenter(sprite, position + Vector2f{imageSize(), imageSize()} / 2.f);
 
             subtarget.draw(sprite);
             if (&image == selectedImage)
@@ -81,12 +90,23 @@ ImageGallery::ImageGallery(Images &images, Rect<unsigned> const &screenArea, uns
         scrollPoint{0} {
 }
 
-void ImageGallery::scroll(float scroll) {
-    scrollPoint -= scroll;
+void ImageGallery::scroll(float scroll_) {
+    scrollPoint -= scroll_;
+    fixScrollPoint();
+}
+
+void ImageGallery::fixScrollPoint() {
+    auto const furthestScrollPoint = (imageSize() + gapSize) * rows() - screenArea.height();
+    scrollPoint = std::clamp(scrollPoint, 0.f, furthestScrollPoint);
+}
+
+unsigned long ImageGallery::rows() const {
+    return divRoundUp(images.size(), columns + 1);
 }
 
 void ImageGallery::setArea(Rect<unsigned> const &newArea) {
     screenArea = newArea;
+    fixScrollPoint();
 }
 
 Image const *ImageGallery::getSelectedImage() const {
@@ -97,8 +117,9 @@ void ImageGallery::pressed(Vector2u const &mousePos) {
     auto const inGalleryPos = mousePos.cast<float>() + Vector2f{0, scrollPoint};
     if (inGalleryPos.x < 0 or inGalleryPos.y < 0)
         return;
-    auto const imageCoords = Vector2f(inGalleryPos / (getImageWidth() + gapSize)).cast<unsigned>();
-    selectedImage = &getImageByGridCoords(imageCoords.x, imageCoords.y);
+    auto const imageCoords = Vector2f(inGalleryPos / (imageSize() + gapSize)).cast<unsigned>();
+    if (auto image = getImageByGridCoords(imageCoords.x, imageCoords.y))
+        selectedImage = image;
 }
 
 std::optional<Vector2u> ImageGallery::globalPosToInAreaPos(Vector2u const &arg) const {
@@ -107,8 +128,14 @@ std::optional<Vector2u> ImageGallery::globalPosToInAreaPos(Vector2u const &arg) 
     return arg - screenArea.position();
 }
 
-Image const &ImageGallery::getImageByGridCoords(std::size_t x, std::size_t y) const {
-    return images.at(y * columns + x);
+Image const *ImageGallery::getImageByGridCoords(std::size_t x, std::size_t y) const {
+    if (x >= columns)
+        return nullptr;
+
+    auto const index = y * columns + x;
+    if (index >= images.size())
+        return nullptr;
+    return &images[index];
 }
 
 void ImageGallery::setColumnsCount(unsigned columns_) {
