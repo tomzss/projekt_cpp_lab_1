@@ -6,6 +6,8 @@ Image::Tags const &Image::getTags() {
 
 std::optional<Image> Image::tryLoad(fsys::path path) {
     auto texture = sf::Texture{};
+    if (std::ranges::find(supportedFormats, path.extension()) == supportedFormats.end())
+        return std::nullopt;
     if (not texture.loadFromFile(path.string()))
         return std::nullopt;
     return Image{std::move(path), texture, {}};
@@ -20,6 +22,8 @@ fsys::path const &Image::getPath() const {
 }
 
 sf::Texture const &Image::getTexture() const {
+//    if(sfTexture.getSize().x==0)
+//        loadI
     return sfTexture;
 }
 

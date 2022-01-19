@@ -1,3 +1,5 @@
+#include "Vector2.hpp"
+
 template<typename T>
 Vector2<T> operator*(Vector2<T> const &a, Vector2<T> const &b) {
     return {a.x * b.x, a.y * b.y};
@@ -55,7 +57,7 @@ ND Vector2<T> operator+(sf::Vector2<T> const &a, Vector2<T> const &b) {
 }
 
 template<typename T>
-ND Vector2<T> operator+(Vector2<T> const &a, Vector2<T> const &b){
+ND Vector2<T> operator+(Vector2<T> const &a, Vector2<T> const &b) {
     return sf::Vector2<T>{a} + sf::Vector2<T>{b};
 }
 
@@ -77,4 +79,9 @@ bool operator==(Vector2<T> const &a, Vector2<T> const &b) {
 template<typename T>
 bool operator!=(Vector2<T> const &a, Vector2<T> const &b) {
     return not a == b;
+}
+
+template<typename T>
+ND Vector2<T> operator/(Vector2<T> const &a, T b) {
+    return {a.x / b, a.y / b};
 }

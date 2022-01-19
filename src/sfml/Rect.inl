@@ -1,3 +1,5 @@
+#include "Rect.hpp"
+
 template<typename T>
 T Rect<T>::top() const {
     return Parent::top;
@@ -86,4 +88,11 @@ Rect<T>::operator sf::Rect<T> const &() const {
 template<typename T>
 Rect<T>::operator sf::Rect<T>() {
     return sf::Rect<T>();
+}
+
+template<typename T>
+template<typename U>
+Rect<U> Rect<T>::cast() const {
+    return sf::Rect<U>{static_cast<U>(Parent::left), static_cast<U>(Parent::top), static_cast<U>(Parent::width),
+                       static_cast<U>(Parent::height)};
 }

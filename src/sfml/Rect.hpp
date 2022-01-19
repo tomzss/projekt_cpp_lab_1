@@ -24,6 +24,9 @@ public:
     ND Vector2<T> position() const;
     ND Vector2<T> size() const;
 
+    template<typename U>
+    ND Rect<U> cast() const;
+
     Rect(sf::Rect<T> const &);
     Rect(T left, T top, T width, T height);
     Rect(Vector2<T> const &position, Vector2<T> const &size);

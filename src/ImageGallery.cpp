@@ -6,11 +6,12 @@
 #include <cmath>
 #include <concepts>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <iostream>
 
 auto divRoundUp(std::integral auto a, std::integral auto b) {
     auto const result = a / b;
     if (a % b != 0)
-        return a + 1;
+        return result + 1;
     return result;
 }
 
@@ -96,12 +97,12 @@ void ImageGallery::scroll(float scroll_) {
 }
 
 void ImageGallery::fixScrollPoint() {
-    auto const furthestScrollPoint = (imageSize() + gapSize) * rows() - screenArea.height();
+    auto const furthestScrollPoint = std::max(0.f, (imageSize() + gapSize) * rows() - screenArea.height());
     scrollPoint = std::clamp(scrollPoint, 0.f, furthestScrollPoint);
 }
 
 unsigned long ImageGallery::rows() const {
-    return divRoundUp(images.size(), columns + 1);
+    return divRoundUp(images.size(), columns);
 }
 
 void ImageGallery::setArea(Rect<unsigned> const &newArea) {

@@ -23,6 +23,8 @@ public:
     /// Add tag to image. May add
     void addTag(Tag const &tag);
 
+    static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".gif", ".psd", ".hdr", ".pic"};
+
 private:
     Image(fsys::path path, sf::Texture const &sfTexture, Tags tags);
 
