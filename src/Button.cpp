@@ -3,6 +3,7 @@
 #include <utility>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include "Subtarget.hpp"
+#include "fitTextInBox.hpp"
 
 Button::Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area_, std::function<void()> callback) :
         callback{std::move(callback)},
@@ -55,5 +56,5 @@ void Button::updateText() {
     auto const additionalHeight = text.getGlobalBounds().top - text.getPosition().y;
     auto const size = Rect{text.getGlobalBounds()}.size();
     text.setPosition(((area.size().cast<float>() - size) / 2.f).cast<float>() - Vector2{0.f, additionalHeight});
-    auto const actualBoundsSize = size + Vector2{0.f, additionalHeight};
+    fitTextInBox(text, area.size().cast<float>());
 }

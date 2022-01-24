@@ -27,8 +27,9 @@ sf::Texture const &Image::getTexture() const {
     return sfTexture;
 }
 
-Image::Image(fsys::path path, sf::Texture const &sfTexture, Image::Tags tags) :
+Image::Image(fsys::path path, sf::Texture const &sfTexture_, Image::Tags tags) :
         path{std::move(path)},
-        sfTexture{sfTexture},
+        sfTexture{sfTexture_},
         tags{std::move(tags)} {
+    sfTexture.setSmooth(true);
 }

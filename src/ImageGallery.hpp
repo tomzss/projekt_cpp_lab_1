@@ -11,7 +11,7 @@ using Images = std::deque<Image>;
 /// Images displayed on screen as gallery (as "tiles")
 class ImageGallery {
 public:
-    ImageGallery(Images &images, Rect<unsigned> const &screenArea, unsigned columns, float gapSize);
+    ImageGallery(Images const &images, Rect<unsigned> const &screenArea, unsigned columns, float gapSize);
 
     /// Images to display
     ND Images const &getImages() const;
@@ -48,7 +48,7 @@ private:
     Rect<unsigned> screenArea;
     unsigned columns;
     float gapSize;
-    Images &images;
+    Images const &images;
     Image const *selectedImage;
     float scrollPoint;
 

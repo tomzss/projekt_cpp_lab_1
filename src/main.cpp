@@ -5,38 +5,45 @@
 #include <SFML/Window/Event.hpp>
 #include "Tag.hpp"
 #include "Image.hpp"
-#include "ImageLoader.hpp"
 #include "ImageGallery.hpp"
 #include "ImageViewer.hpp"
 #include "Button.hpp"
+#include "Directory.hpp"
+#include "fitTextInBox.hpp"
 
-int main() {
+fsys::path getDefaultPath(int argc, char **args) {
+    if (argc > 1)
+        return args[1];
+
+    auto homePath = fsys::path{std::getenv("HOME")};
+    if (is_directory(homePath))
+        return homePath;
+
+    return fsys::current_path().root_path();
+}
+
+int main(int argc, char **args) {
     auto font = sf::Font{};
     if (not font.loadFromFile("Manjari-Regular.otf")) {
         std::cerr << "FAILED TO LOAD FONT ABORDING ABORDING AAAAAAAAAAA";
         return EXIT_FAILURE;
     }
 
-    // make window
-    auto window = sf::RenderWindow{{700, 400}, "Gallery"};
+    auto const startPath = getDefaultPath(argc, args);
+
+    /// make window
+    auto window = sf::RenderWindow{{700, 400}, "Gallery in " + startPath.string()};
     window.setFramerateLimit(30);
 
-    // main data containers
+    /// main data containers
     auto tags = std::deque<Tag>{};
-    auto images = std::deque<Image>{};
+    auto directory = Directory{startPath};
 
-    // load images and test ImageLoader
-    auto loader = ImageLoader{fsys::directory_iterator{"/home/tomzs/temp"}};
-    while (auto image = loader.nextImage())
-        images.emplace_back(std::move(*image));
-    for (auto const &image: images)
-        std::cout << "loaded file: " << image.getPath().filename().string() << '\n';
-
-    // input sensitivity
+    /// input sensitivity
     auto constexpr scrollSpeed = 30.f;
     auto constexpr zoomSpeed = 30.f;
 
-    // layout
+    /// layout
     auto constexpr minimumImageSize = 130u;
     auto constexpr gap = 10u;
 
@@ -54,19 +61,42 @@ int main() {
 
     auto columns = [&]() -> unsigned { return galleryArea().size().x / minimumImageSize; };
 
-    auto gallery = ImageGallery{images, galleryArea(), columns(), 5};
+    auto gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), 5};
 
-    auto testButtonArea = [&]() -> Rect<unsigned> {
+    auto buttonsArea = [&]() -> Rect<unsigned> {
         auto position = viewArea().position() + Vector2u{0, viewArea().size().y} + Vector2u{gap, gap};
-        auto size = Vector2u{viewArea().size().x - 2 * gap, 30};
+        auto size = Vector2u{viewArea().size().x - 2 * gap, viewArea().size().y};
         return {position, size};
     };
 
-    auto testButton = Button{font, "TESTING BUTTON", testButtonArea(), [] { std::cout << "A" << std::endl; }};
+    auto buttonArea = [&](unsigned i) -> Rect<unsigned> {
+        auto size = Vector2u{buttonsArea().size().x, 30};
+        auto position = buttonsArea().position() + Vector2u{0, (size.y + gap) * i};
+        return {position, size};
+    };
 
-    // main loop
+    auto makeButtons = [&](auto&callback) -> std::deque<Button> {
+        auto buttons = std::deque<Button>{};
+        auto i = std::size_t{0};
+        for (auto const &dir: directory.getAvailableDirectories()) {
+            buttons.emplace_back(
+                    font, dir.filename().string(), buttonArea(i), callback);
+            i++;
+        }
+        return buttons;
+    };
+
+    auto directoriesButtons =std::deque<Button>{};
+
+    auto buttonCallback = [&](auto dir) {
+        directory = Directory{dir};
+        directoriesButtons = makeButtons(buttonCallback);
+    };
+
+    directoriesButtons=makeButtons(buttonCallback);
+    /// main loop
     while (window.isOpen()) {
-        // event processing
+        /// event processing
         auto event = sf::Event{};
         while (window.pollEvent(event)) {
             switch (event.type) {
@@ -76,7 +106,7 @@ int main() {
                     window.setView({size_f * 0.5f, size_f});
                     gallery.setArea({galleryArea()});
                     gallery.setColumnsCount(columns());
-                    testButton.setArea(testButtonArea());
+                    directoriesButtons = makeButtons(buttonCallback);
                     break;
                 }
                 case sf::Event::MouseWheelScrolled: {
@@ -93,14 +123,16 @@ int main() {
                     auto const mousePos = Vector2i{event.mouseButton.x, event.mouseButton.y}.cast<unsigned>();
                     if (auto pos = gallery.globalPosToInAreaPos(mousePos))
                         gallery.pressed(*pos);
-                    testButton.mousePressed(mousePos);
+                    for (auto &button: directoriesButtons)
+                        button.mousePressed(mousePos);
                     break;
                 }
                 case sf::Event::MouseButtonReleased: {
                     if (event.mouseButton.x < 0 or event.mouseButton.y < 0)
                         break;
                     auto const mousePos = Vector2i{event.mouseButton.x, event.mouseButton.y}.cast<unsigned>();
-                    testButton.mouseReleased(mousePos);
+                    for (auto &button: directoriesButtons)
+                        button.mouseReleased(mousePos);
                     break;
                 }
                 case sf::Event::Closed:
@@ -113,15 +145,16 @@ int main() {
 
         auto selectedImage = gallery.getSelectedImage();
 
-        // drawing
+        /// drawing
         window.clear(sf::Color::Black);
         gallery.draw(window);
-        testButton.draw(window);
         if (selectedImage != nullptr) {
             auto selectedTexture = selectedImage->getTexture();
             auto imageViewer = ImageViewer{selectedTexture, viewArea()};
             imageViewer.draw(window);
         }
+        for (auto &button: directoriesButtons)
+            button.draw(window);
         window.display();
     }
 }

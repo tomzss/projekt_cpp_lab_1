@@ -82,7 +82,7 @@ void ImageGallery::drawBorder(sf::RenderTarget &target, Rect<float> const &area)
     target.draw(shape);
 }
 
-ImageGallery::ImageGallery(Images &images, Rect<unsigned> const &screenArea, unsigned columns, float gapSize) :
+ImageGallery::ImageGallery(Images const &images, Rect<unsigned> const &screenArea, unsigned columns, float gapSize) :
         screenArea{screenArea},
         columns{columns},
         gapSize{gapSize},
