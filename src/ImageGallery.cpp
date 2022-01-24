@@ -16,7 +16,7 @@ auto divRoundUp(std::integral auto a, std::integral auto b) {
 }
 
 Images const &ImageGallery::getImages() const {
-    return images;
+    return *images;
 }
 
 Rect<unsigned> const &ImageGallery::getScreenArea() const {
@@ -46,7 +46,7 @@ void ImageGallery::draw(sf::RenderTarget &target) const {
     auto const firstVisibleRow = static_cast<std::size_t>(std::max<float>(
             0, std::floor(scrollPoint / imageSize())));
     auto const lastVisibleRow = std::min<std::size_t>(
-            static_cast<int>(images.size() - 1),
+            static_cast<int>(images->size() - 1),
             std::ceil((scrollPoint + static_cast<float>(screenArea.height())) / imageSize()));
 
     for (auto row = firstVisibleRow; row != lastVisibleRow; ++row) {
@@ -86,7 +86,7 @@ ImageGallery::ImageGallery(Images const &images, Rect<unsigned> const &screenAre
         screenArea{screenArea},
         columns{columns},
         gapSize{gapSize},
-        images{images},
+        images{&images},
         selectedImage{nullptr},
         scrollPoint{0} {
 }
@@ -102,7 +102,7 @@ void ImageGallery::fixScrollPoint() {
 }
 
 unsigned long ImageGallery::rows() const {
-    return divRoundUp(images.size(), columns);
+    return divRoundUp(images->size(), columns);
 }
 
 void ImageGallery::setArea(Rect<unsigned> const &newArea) {
@@ -134,9 +134,9 @@ Image const *ImageGallery::getImageByGridCoords(std::size_t x, std::size_t y) co
         return nullptr;
 
     auto const index = y * columns + x;
-    if (index >= images.size())
+    if (index >= images->size())
         return nullptr;
-    return &images[index];
+    return &(*images)[index];
 }
 
 void ImageGallery::setColumnsCount(unsigned columns_) {

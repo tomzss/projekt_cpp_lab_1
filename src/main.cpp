@@ -69,31 +69,32 @@ int main(int argc, char **args) {
         return {position, size};
     };
 
-    auto buttonArea = [&](unsigned i) -> Rect<unsigned> {
-        auto size = Vector2u{buttonsArea().size().x, 30};
+    auto buttonArea = [&](unsigned i, unsigned buttons) -> Rect<unsigned> {
+        auto size = Vector2u{buttonsArea().size().x, std::clamp(buttonsArea().size().y / buttons - gap, 30u, 50u)};
         auto position = buttonsArea().position() + Vector2u{0, (size.y + gap) * i};
         return {position, size};
     };
 
-    auto makeButtons = [&](auto&callback) -> std::deque<Button> {
+    auto buttonsRefresh = bool{true};
+
+    auto makeButtons = [&]() -> std::deque<Button> {
         auto buttons = std::deque<Button>{};
         auto i = std::size_t{0};
-        for (auto const &dir: directory.getAvailableDirectories()) {
+        auto const &directories = directory.getAvailableDirectories();
+        for (auto const &dir: directories) {
             buttons.emplace_back(
-                    font, dir.filename().string(), buttonArea(i), callback);
+                    font, dir.filename().string(), buttonArea(i, directories.size()), [&, dir] {
+                        directory = Directory{dir};
+                        window.setTitle("Gallery in " + dir.string());
+                        gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), 5};
+                        buttonsRefresh = true;
+                    });
             i++;
         }
         return buttons;
     };
 
-    auto directoriesButtons =std::deque<Button>{};
-
-    auto buttonCallback = [&](auto dir) {
-        directory = Directory{dir};
-        directoriesButtons = makeButtons(buttonCallback);
-    };
-
-    directoriesButtons=makeButtons(buttonCallback);
+    auto directoriesButtons = makeButtons();
     /// main loop
     while (window.isOpen()) {
         /// event processing
@@ -106,7 +107,7 @@ int main(int argc, char **args) {
                     window.setView({size_f * 0.5f, size_f});
                     gallery.setArea({galleryArea()});
                     gallery.setColumnsCount(columns());
-                    directoriesButtons = makeButtons(buttonCallback);
+                    directoriesButtons = makeButtons();
                     break;
                 }
                 case sf::Event::MouseWheelScrolled: {
@@ -141,6 +142,11 @@ int main(int argc, char **args) {
                 default:
                     break;
             }
+        }
+
+        if (buttonsRefresh) {
+            directoriesButtons = makeButtons();
+            buttonsRefresh = false;
         }
 
         auto selectedImage = gallery.getSelectedImage();

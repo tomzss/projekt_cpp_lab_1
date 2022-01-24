@@ -48,7 +48,7 @@ private:
     Rect<unsigned> screenArea;
     unsigned columns;
     float gapSize;
-    Images const &images;
+    Images const *images;
     Image const *selectedImage;
     float scrollPoint;
 

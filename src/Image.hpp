@@ -4,6 +4,7 @@
 #include <optional>
 #include <vector>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/String.hpp>
 #include "Nodiscard.hpp"
 #include "filesystem.hpp"
 #include "Tag.hpp"
@@ -23,7 +24,8 @@ public:
     /// Add tag to image. May add
     void addTag(Tag const &tag);
 
-    static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".gif", ".psd", ".hdr", ".pic"};
+    /// Check if format (eg. ".png") is supported.
+    static bool isFormatSupported(sf::String const&);
 
 private:
     Image(fsys::path path, sf::Texture const &sfTexture, Tags tags);
@@ -31,4 +33,5 @@ private:
     fsys::path path;
     sf::Texture sfTexture;
     Tags tags;
+    static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".gif", ".psd", ".hdr", ".pic"};
 };
