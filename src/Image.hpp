@@ -3,6 +3,7 @@
 #include <functional>
 #include <optional>
 #include <vector>
+#include <thread>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/String.hpp>
 #include "Nodiscard.hpp"
@@ -10,20 +11,31 @@
 
 class Image {
 public:
-    /// Load image from file
-    static std::optional<Image> tryLoad(fsys::path path);
+    enum class State {
+        loading, ready, invalid
+    };
 
-    /// Access image data
+    /// Check if file format (eg. ".png") is supported.
+    static bool isFormatSupported(std::string_view);
+
+    /// Start loading Image.
+    /// Image will be in the `loading` state for some time,
+    /// then state will change to either `ready` or `invalid`.
+    static Image loadFromFile(fsys::path path);
+
+    ND State getState() const;
+
+    /// Returns texture only in `ready` state.
+    ND std::optional<std::reference_wrapper<sf::Texture const>> getTexture() const;
+
     ND fsys::path const &getPath() const;
-    ND sf::Texture const &getTexture() const;
-
-    /// Check if format (eg. ".png") is supported.
-    static bool isFormatSupported(sf::String const&);
 
 private:
     Image(fsys::path path, sf::Texture const &sfTexture);
 
     fsys::path path;
     sf::Texture sfTexture;
+    bool stillLoading;
+
     static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".psd", ".hdr", ".pic"};
 };

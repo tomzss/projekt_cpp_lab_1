@@ -1,6 +1,19 @@
 #include "Image.hpp"
 
-std::optional<Image> Image::tryLoad(fsys::path path) {
+class TextureLoader{
+public:
+    std::optional<std::reference_wrapper<sf::Texture const>> getTexture() const {
+        if (getState() == State::ready)
+            return std::ref(sfTexture);
+        return std::nullopt;
+    }
+
+private:
+    std::map<fsys::path, sf::Texture> textures;
+    std::thread loadingThread;
+};
+
+Image Image::loadFromFile(fsys::path path) {
     auto sfImage = sf::Image{};
     if (not isFormatSupported(path.extension().string()))
         return std::nullopt;
@@ -14,7 +27,7 @@ std::optional<Image> Image::tryLoad(fsys::path path) {
     return Image{std::move(path), texture};
 }
 
-bool Image::isFormatSupported(sf::String const &format) {
+bool Image::isFormatSupported(std::string_view format) {
     return std::ranges::find(supportedFormats, format) != supportedFormats.end();
 }
 
@@ -22,12 +35,26 @@ fsys::path const &Image::getPath() const {
     return path;
 }
 
-sf::Texture const &Image::getTexture() const {
-    return sfTexture;
+std::optional<std::reference_wrapper<sf::Texture const>> Image::getTexture() const {
+    if (getState() == State::ready)
+        return std::ref(sfTexture);
+    return std::nullopt;
 }
 
 Image::Image(fsys::path path, sf::Texture const &sfTexture_) :
         path{std::move(path)},
-        sfTexture{sfTexture_} {
+        sfTexture{sfTexture_},
+        stillLoading{true} {
     sfTexture.setSmooth(true);
+}
+
+Image::State Image::getState() const {
+    if (not loaded)
+        return State::loading;
+
+    auto const &size = sfTexture.getSize();
+    if (size.x == 0 or size.y == 0)
+        return State::invalid;
+
+    return State::ready;
 }
