@@ -3,7 +3,6 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/Window/Event.hpp>
-#include "Tag.hpp"
 #include "Image.hpp"
 #include "ImageGallery.hpp"
 #include "ImageViewer.hpp"
@@ -36,12 +35,10 @@ int main(int argc, char **args) {
     window.setFramerateLimit(30);
 
     /// main data containers
-    auto tags = std::deque<Tag>{};
     auto directory = Directory{startPath};
 
     /// input sensitivity
     auto constexpr scrollSpeed = 30.f;
-    auto constexpr zoomSpeed = 30.f;
 
     /// layout
     auto constexpr minimumImageSize = 130u;
@@ -86,7 +83,7 @@ int main(int argc, char **args) {
                     font, dir.filename().string(), buttonArea(i, directories.size()), [&, dir] {
                         directory = Directory{dir};
                         window.setTitle("Gallery in " + dir.string());
-                        gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), 5};
+                        gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), gap};
                         buttonsRefresh = true;
                     });
             i++;

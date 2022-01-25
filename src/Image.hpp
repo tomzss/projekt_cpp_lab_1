@@ -7,31 +7,23 @@
 #include <SFML/System/String.hpp>
 #include "Nodiscard.hpp"
 #include "filesystem.hpp"
-#include "Tag.hpp"
 
 class Image {
 public:
-    using Tags = std::vector<std::reference_wrapper<Tag const>>;
-
     /// Load image from file
     static std::optional<Image> tryLoad(fsys::path path);
 
     /// Access image data
-    ND Tags const &getTags();
     ND fsys::path const &getPath() const;
     ND sf::Texture const &getTexture() const;
-
-    /// Add tag to image. May add
-    void addTag(Tag const &tag);
 
     /// Check if format (eg. ".png") is supported.
     static bool isFormatSupported(sf::String const&);
 
 private:
-    Image(fsys::path path, sf::Texture const &sfTexture, Tags tags);
+    Image(fsys::path path, sf::Texture const &sfTexture);
 
     fsys::path path;
     sf::Texture sfTexture;
-    Tags tags;
-    static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".gif", ".psd", ".hdr", ".pic"};
+    static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".psd", ".hdr", ".pic"};
 };
