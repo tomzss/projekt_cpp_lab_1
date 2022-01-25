@@ -4,10 +4,13 @@
 #include <optional>
 #include <vector>
 #include <thread>
+#include <memory>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/String.hpp>
 #include "Nodiscard.hpp"
 #include "filesystem.hpp"
+
+class ImageData;
 
 class Image {
 public:
@@ -33,9 +36,7 @@ public:
 private:
     Image(fsys::path path, sf::Texture const &sfTexture);
 
-    fsys::path path;
-    sf::Texture sfTexture;
-    bool stillLoading;
+    std::shared_ptr<ImageData> data;
 
     static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".psd", ".hdr", ".pic"};
 };
