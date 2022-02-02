@@ -152,9 +152,11 @@ int main(int argc, char **args) {
         window.clear(sf::Color::Black);
         gallery.draw(window);
         if (selectedImage != nullptr) {
-            auto selectedTexture = selectedImage->getTexture();
-            auto imageViewer = ImageViewer{selectedTexture, viewArea()};
-            imageViewer.draw(window);
+            auto optTexture = selectedImage->getTexture();
+            if (optTexture.has_value()) {
+                auto imageViewer = ImageViewer{*optTexture, viewArea()};
+                imageViewer.draw(window);
+            }
         }
         for (auto &button: directoriesButtons)
             button.draw(window);

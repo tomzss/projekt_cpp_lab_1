@@ -58,7 +58,11 @@ void ImageGallery::draw(sf::RenderTarget &target) const {
                 return;
 
             auto const &image = *imagePtr;
-            auto const &texture = SizedTexture::byOuterBox(image.getTexture(), {imageSize(), imageSize()});
+            auto optTexture = image.getTexture();
+            if (not optTexture.has_value())
+                continue;
+
+            auto const &texture = SizedTexture::byOuterBox(*optTexture, {imageSize(), imageSize()});
             auto const &position = Vector2f{static_cast<float>(column) * rowWidth, rowPosY};
 
             auto sprite = sf::Sprite{};

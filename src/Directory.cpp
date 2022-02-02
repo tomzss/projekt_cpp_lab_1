@@ -32,8 +32,7 @@ std::deque<Image> const &Directory::getImages() const {
 
 void Directory::loadImages() {
     for (auto const &iter: fsys::directory_iterator{myPath})
-        if (auto const &image = Image::tryLoad(iter))
-            images.emplace_back(*image);
+        images.emplace_back(Image::loadFromFile(iter));
 }
 
 std::deque<fsys::path> const &Directory::getAvailableDirectories() const {

@@ -31,12 +31,12 @@ public:
     /// Returns texture only in `ready` state.
     ND std::optional<std::reference_wrapper<sf::Texture const>> getTexture() const;
 
-    ND fsys::path const &getPath() const;
+    ND fsys::path getPath() const;
 
 private:
-    Image(fsys::path path, sf::Texture const &sfTexture);
+    explicit Image(std::shared_ptr<ImageData const> data);
 
-    std::shared_ptr<ImageData> data;
+    std::shared_ptr<ImageData const> data;
 
     static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".psd", ".hdr", ".pic"};
 };
