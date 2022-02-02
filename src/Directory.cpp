@@ -3,6 +3,12 @@
 #include <utility>
 
 bool containsImages(fsys::directory_entry const &directory) {
+    if ((directory.status().permissions() & fsys::perms::others_read) == fsys::perms::none)
+        return false;
+
+    if(directory.is_symlink())
+        return false;
+
     for (auto &file: fsys::directory_iterator{directory}) {
         if (file.path().filename().string().starts_with('.'))
             return false;
