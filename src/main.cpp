@@ -28,6 +28,12 @@ int main(int argc, char **args) {
         return EXIT_FAILURE;
     }
 
+    auto folderIconTexture = sf::Texture{};
+    if (not folderIconTexture.loadFromFile("folder.png")) {
+        std::cerr << "FAILED TO LOAD FOLDER ICON ABORDING ABORDING AAAAAAAAAAA";
+        return EXIT_FAILURE;
+    }
+
     auto const startPath = getDefaultPath(argc, args);
 
     /// make window
@@ -74,8 +80,8 @@ int main(int argc, char **args) {
 
     auto buttonsRefresh = bool{true};
 
-    auto makeButton = [&](Rect<unsigned> const &area, fsys::path const &dir) -> Button {
-        return Button{font, dir.filename().string(), area, [&, dir] {
+    auto makeButton = [&](Rect<unsigned> const &area, fsys::path const &dir, sf::Color color) -> Button {
+        return Button{font, dir.filename().string(), area, folderIconTexture, color, [&, dir] {
             directory = Directory{dir};
             window.setTitle("Gallery in " + dir.string());
             gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), gap};
@@ -88,11 +94,15 @@ int main(int argc, char **args) {
         auto const &directories = directory.getAvailableDirectories();
 
         if (directory.getMyPath().has_parent_path())
-            buttons.emplace_back(makeButton(buttonArea(0, directories.size()), directory.getMyPath().parent_path()));
+            buttons.emplace_back(
+                    makeButton(
+                            buttonArea(0, directories.size()),
+                            directory.getMyPath().parent_path(),
+                            sf::Color{20, 100, 255}));
 
         auto i = std::size_t{1};
         for (auto const &dir: directories) {
-            buttons.emplace_back(makeButton(buttonArea(i, directories.size()), dir));
+            buttons.emplace_back(makeButton(buttonArea(i, directories.size()), dir, sf::Color::Green));
             i++;
         }
         return buttons;

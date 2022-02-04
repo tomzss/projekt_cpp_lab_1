@@ -9,7 +9,8 @@
 
 class Button {
 public:
-    Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area, std::function<void()> callback);
+    Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area_, sf::Texture const &iconTexture,
+           sf::Color iconColor, std::function<void()> callback);
 
     void mousePressed(Vector2u const &mousePos);
     void mouseReleased(Vector2u const &mousePos);
@@ -23,6 +24,9 @@ private:
     std::function<void()> callback;
     sf::Text text;
     bool underPress;
+
+    sf::Texture const &iconTexture;
+    sf::Color iconColor;
 
     void updateText();
 };

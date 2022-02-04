@@ -2,13 +2,20 @@
 
 #include <utility>
 #include <SFML/Graphics/RectangleShape.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 #include "Subtarget.hpp"
 #include "fitTextInBox.hpp"
+#include "SizedTexture.hpp"
 
-Button::Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area_, std::function<void()> callback) :
+auto constexpr gap = 5.f;
+
+Button::Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area_, sf::Texture const &iconTexture,
+               sf::Color iconColor, std::function<void()> callback) :
         callback{std::move(callback)},
         area{area_},
-        underPress{false} {
+        underPress{false},
+        iconTexture{iconTexture},
+        iconColor(iconColor) {
     text.setFont(font);
     text.setCharacterSize(50);
     text.setString(label);
@@ -44,8 +51,14 @@ void Button::draw(sf::RenderTarget &sfTarget) const {
     else
         shape.setFillColor(sf::Color{60, 150, 150});
 
+    auto icon = sf::Sprite{};
+    icon.setColor(iconColor);
+    SizedTexture::byHeight(iconTexture, area.height()).applyScaleAndTexture(icon);
+    icon.setPosition({gap, 0});
+
     target.draw(shape);
     target.draw(text);
+    target.draw(icon);
 }
 
 void Button::setArea(Rect<unsigned> const &newArea) {
@@ -54,11 +67,10 @@ void Button::setArea(Rect<unsigned> const &newArea) {
 }
 
 void Button::updateText() {
-    auto constexpr gap = 5.f;
     auto const gapVec = Vector2f{gap, gap};
     text.setPosition({0, 0});
     text.setOrigin(Rect{text.getGlobalBounds()}.position());
     fitTextInBox(text, area.size().cast<float>() - gapVec * 2.f);
     auto const textSize = Rect{text.getGlobalBounds()}.size();
-    text.setPosition((area.size().cast<float>() - textSize + gapVec) / 2.f );
+    text.setPosition((area.size().cast<float>() - textSize + gapVec) / 2.f);
 }
