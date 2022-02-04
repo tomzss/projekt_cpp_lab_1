@@ -11,6 +11,7 @@ public:
     // Images existing in this directory.
     ND std::deque<Image> const &getImages() const;
     ND std::deque<fsys::path> const &getAvailableDirectories() const;
+    ND fsys::path const &getMyPath() const;
 
 private:
     std::deque<Image> images;

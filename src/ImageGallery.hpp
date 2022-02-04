@@ -2,6 +2,7 @@
 
 #include <deque>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Font.hpp>
 #include "sfml/Rect.hpp"
 #include "Image.hpp"
 #include "SizedTexture.hpp"
@@ -39,7 +40,7 @@ public:
     /// mousePos relative to area
     void pressed(Vector2u const &mousePos);
 
-    void draw(sf::RenderTarget &target) const;
+    void draw(sf::RenderTarget &target, sf::Font const &font) const;
 
     ND Image const *getSelectedImage() const;
     void setColumnsCount(unsigned columns);

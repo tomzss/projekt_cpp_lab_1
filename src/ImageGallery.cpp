@@ -1,5 +1,6 @@
 #include "ImageGallery.hpp"
 #include "Subtarget.hpp"
+#include "fitTextInBox.hpp"
 
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <numeric>
@@ -7,6 +8,7 @@
 #include <concepts>
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <iostream>
+#include <SFML/Graphics/Text.hpp>
 
 auto divRoundUp(std::integral auto a, std::integral auto b) {
     auto const result = a / b;
@@ -39,8 +41,20 @@ float ImageGallery::imageSize() const {
     return imagesSummaryWidth / columnsF;
 }
 
-void ImageGallery::draw(sf::RenderTarget &target) const {
+void ImageGallery::draw(sf::RenderTarget &target, sf::Font const &font) const {
     auto subtarget = Subtarget{target, screenArea};
+
+    if (images->empty()) {
+        auto text = sf::Text{};
+        text.setFont(font);
+        text.setCharacterSize(100);
+        text.setFillColor(sf::Color::White);
+        text.setString("No images in selected directory");
+        fitTextInBox(text, screenArea.size().cast<float>());
+        text.setPosition((screenArea.size().cast<float>() - Rect{text.getGlobalBounds()}.size()) / 2.f);
+        auto b = text.getGlobalBounds();
+        subtarget.draw(text);
+    }
 
     auto const rowWidth = imageSize() + gapSize;
     auto const firstVisibleRow = static_cast<std::size_t>(std::max<float>(

@@ -2,12 +2,12 @@
 
 /// File to ignore
 bool outOfInterest(fsys::directory_entry const &file) {
-    // no access
-    if ((file.status().permissions() & fsys::perms::others_read) == fsys::perms::none)
-        return true;
-
     // link (to avoid loops)
     if (file.is_symlink())
+        return true;
+
+    // no access
+    if ((file.status().permissions() & fsys::perms::others_read) == fsys::perms::none)
         return true;
 
     // hidden file
@@ -36,10 +36,6 @@ bool isImageRelated(fsys::directory_entry const &file) {
 Directory::Directory(fsys::path path_) :
         myPath{std::move(path_)} {
     loadImages();
-
-    if (myPath.has_parent_path())
-        availableDirectories.emplace_back(myPath.parent_path());
-
     for (auto &file: fsys::directory_iterator{myPath})
         if (isImageRelated(file) and file.is_directory())
             availableDirectories.emplace_back(file);
@@ -57,4 +53,8 @@ void Directory::loadImages() {
 
 std::deque<fsys::path> const &Directory::getAvailableDirectories() const {
     return availableDirectories;
+}
+
+fsys::path const &Directory::getMyPath() const {
+    return myPath;
 }

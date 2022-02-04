@@ -23,7 +23,7 @@ fsys::path getDefaultPath(int argc, char **args) {
 
 int main(int argc, char **args) {
     auto font = sf::Font{};
-    if (not font.loadFromFile("Manjari-Regular.otf")) {
+    if (not font.loadFromFile("Manjari-Regular.otf")) {    // TODO loading some system font
         std::cerr << "FAILED TO LOAD FONT ABORDING ABORDING AAAAAAAAAAA";
         return EXIT_FAILURE;
     }
@@ -74,18 +74,25 @@ int main(int argc, char **args) {
 
     auto buttonsRefresh = bool{true};
 
+    auto makeButton = [&](Rect<unsigned> const &area, fsys::path const &dir) -> Button {
+        return Button{font, dir.filename().string(), area, [&, dir] {
+            directory = Directory{dir};
+            window.setTitle("Gallery in " + dir.string());
+            gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), gap};
+            buttonsRefresh = true;
+        }};
+    };
+
     auto makeButtons = [&]() -> std::deque<Button> {
         auto buttons = std::deque<Button>{};
-        auto i = std::size_t{0};
         auto const &directories = directory.getAvailableDirectories();
+
+        if (directory.getMyPath().has_parent_path())
+            buttons.emplace_back(makeButton(buttonArea(0, directories.size()), directory.getMyPath().parent_path()));
+
+        auto i = std::size_t{1};
         for (auto const &dir: directories) {
-            buttons.emplace_back(
-                    font, dir.filename().string(), buttonArea(i, directories.size()), [&, dir] {
-                        directory = Directory{dir};
-                        window.setTitle("Gallery in " + dir.string());
-                        gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), gap};
-                        buttonsRefresh = true;
-                    });
+            buttons.emplace_back(makeButton(buttonArea(i, directories.size()), dir));
             i++;
         }
         return buttons;
@@ -150,7 +157,7 @@ int main(int argc, char **args) {
 
         /// drawing
         window.clear(sf::Color::Black);
-        gallery.draw(window);
+        gallery.draw(window, font);
         if (selectedImage != nullptr) {
             auto selectedTexture = selectedImage->getTexture();
             auto imageViewer = ImageViewer{selectedTexture, viewArea()};
