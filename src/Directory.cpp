@@ -1,22 +1,35 @@
 #include "Directory.hpp"
 
-#include <utility>
+/// File to ignore
+bool outOfInterest(fsys::directory_entry const &file) {
+    // no access
+    if ((file.status().permissions() & fsys::perms::others_read) == fsys::perms::none)
+        return true;
 
-bool containsImages(fsys::directory_entry const &directory) {
-    if ((directory.status().permissions() & fsys::perms::others_read) == fsys::perms::none)
+    // link (to avoid loops)
+    if (file.is_symlink())
+        return true;
+
+    // hidden file
+    if (file.path().filename().string().starts_with('.'))
+        return true;
+
+    return false;
+}
+
+/// Is an displayable image or a directory containing images
+bool isImageRelated(fsys::directory_entry const &file) {
+    if (outOfInterest(file))
         return false;
 
-    if(directory.is_symlink())
-        return false;
+    if (Image::isFormatSupported(file.path().extension().string()))
+        return true;
 
-    for (auto &file: fsys::directory_iterator{directory}) {
-        if (file.path().filename().string().starts_with('.'))
-            return false;
-        if (file.is_directory() and not containsImages(file))
-            return false;
-        if (Image::isFormatSupported(file.path().extension().string()))
-            return true;
-    }
+    if (file.is_directory())
+        for (auto &subFile: fsys::directory_iterator{file})
+            if (isImageRelated(subFile))
+                return true;
+
     return false;
 }
 
@@ -28,7 +41,7 @@ Directory::Directory(fsys::path path_) :
         availableDirectories.emplace_back(myPath.parent_path());
 
     for (auto &file: fsys::directory_iterator{myPath})
-        if (file.is_directory() and containsImages(file))
+        if (isImageRelated(file) and file.is_directory())
             availableDirectories.emplace_back(file);
 }
 

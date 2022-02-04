@@ -57,5 +57,5 @@ private:
 
     /// Prevents scrolling out of view. Call after changing scroll/view
     void fixScrollPoint();
-    unsigned long rows() const;
+    ND unsigned long rows() const;
 };

@@ -10,6 +10,7 @@ Button::Button(sf::Font const &font, sf::String const &label, Rect<unsigned> are
         area{area_},
         underPress{false} {
     text.setFont(font);
+    text.setCharacterSize(50);
     text.setString(label);
     updateText();
 }
@@ -53,8 +54,11 @@ void Button::setArea(Rect<unsigned> const &newArea) {
 }
 
 void Button::updateText() {
-    auto const additionalHeight = text.getGlobalBounds().top - text.getPosition().y;
-    auto const size = Rect{text.getGlobalBounds()}.size();
-    text.setPosition(((area.size().cast<float>() - size) / 2.f).cast<float>() - Vector2{0.f, additionalHeight});
-    fitTextInBox(text, area.size().cast<float>());
+    auto constexpr gap = 5.f;
+    auto const gapVec = Vector2f{gap, gap};
+    text.setPosition({0, 0});
+    text.setOrigin(Rect{text.getGlobalBounds()}.position());
+    fitTextInBox(text, area.size().cast<float>() - gapVec * 2.f);
+    auto const textSize = Rect{text.getGlobalBounds()}.size();
+    text.setPosition((area.size().cast<float>() - textSize + gapVec) / 2.f );
 }
