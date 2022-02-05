@@ -52,7 +52,6 @@ void ImageGallery::draw(sf::RenderTarget &target, sf::Font const &font) const {
         text.setString("No images in selected directory");
         fitTextInBox(text, screenArea.size().cast<float>());
         text.setPosition((screenArea.size().cast<float>() - Rect{text.getGlobalBounds()}.size()) / 2.f);
-        auto b = text.getGlobalBounds();
         subtarget.draw(text);
     }
 

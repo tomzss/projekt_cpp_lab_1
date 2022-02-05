@@ -11,8 +11,8 @@ auto constexpr gap = 5.f;
 
 Button::Button(sf::Font const &font, sf::String const &label, Rect<unsigned> area_, sf::Texture const &iconTexture,
                sf::Color iconColor, std::function<void()> callback) :
-        callback{std::move(callback)},
         area{area_},
+        callback{std::move(callback)},
         underPress{false},
         iconTexture{iconTexture},
         iconColor(iconColor) {
@@ -57,8 +57,8 @@ void Button::draw(sf::RenderTarget &sfTarget) const {
     icon.setPosition({gap, 0});
 
     target.draw(shape);
-    target.draw(text);
     target.draw(icon);
+    target.draw(text);
 }
 
 void Button::setArea(Rect<unsigned> const &newArea) {
@@ -67,10 +67,17 @@ void Button::setArea(Rect<unsigned> const &newArea) {
 }
 
 void Button::updateText() {
+    auto const iconWidth = sizedTexture().getSize().x;
+    auto textAreaSize = area.size().cast<float>() - Vector2f{iconWidth, 0};
+
     auto const gapVec = Vector2f{gap, gap};
     text.setPosition({0, 0});
     text.setOrigin(Rect{text.getGlobalBounds()}.position());
-    fitTextInBox(text, area.size().cast<float>() - gapVec * 2.f);
+    fitTextInBox(text, textAreaSize - gapVec * 2.f);
     auto const textSize = Rect{text.getGlobalBounds()}.size();
-    text.setPosition((area.size().cast<float>() - textSize + gapVec) / 2.f);
+    text.setPosition(Vector2f{iconWidth, 0} + (textAreaSize - textSize + gapVec) / 2.f);
+}
+
+SizedTexture Button::sizedTexture() const {
+    return SizedTexture::byHeight(iconTexture, area.height());
 }

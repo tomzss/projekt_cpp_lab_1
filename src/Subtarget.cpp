@@ -5,8 +5,8 @@ Vector2u Subtarget::getSize() const {
 }
 
 Subtarget::Subtarget(sf::RenderTarget &target_, Rect<unsigned> const &area_) :
-        area(area_),
-        target(target_) {
+        target(target_),
+        area(area_) {
 }
 
 void Subtarget::draw(sf::Drawable const &drawable) {

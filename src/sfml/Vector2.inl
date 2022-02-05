@@ -78,7 +78,7 @@ bool operator==(Vector2<T> const &a, Vector2<T> const &b) {
 
 template<typename T>
 bool operator!=(Vector2<T> const &a, Vector2<T> const &b) {
-    return not a == b;
+    return not (a == b);
 }
 
 template<typename T>

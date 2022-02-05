@@ -23,13 +23,13 @@ fsys::path getDefaultPath(int argc, char **args) {
 
 int main(int argc, char **args) {
     auto font = sf::Font{};
-    if (not font.loadFromFile("Manjari-Regular.otf")) {    // TODO loading some system font
+    if (not font.loadFromFile("../data/Manjari-Regular.otf")) {
         std::cerr << "FAILED TO LOAD FONT ABORDING ABORDING AAAAAAAAAAA";
         return EXIT_FAILURE;
     }
 
     auto folderIconTexture = sf::Texture{};
-    if (not folderIconTexture.loadFromFile("folder.png")) {
+    if (not folderIconTexture.loadFromFile("../data/folder.png")) {
         std::cerr << "FAILED TO LOAD FOLDER ICON ABORDING ABORDING AAAAAAAAAAA";
         return EXIT_FAILURE;
     }
@@ -67,21 +67,34 @@ int main(int argc, char **args) {
     auto gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), 5};
 
     auto buttonsArea = [&]() -> Rect<unsigned> {
-        auto position = viewArea().position() + Vector2u{0, viewArea().size().y} + Vector2u{gap, gap};
-        auto size = Vector2u{viewArea().size().x - 2 * gap, viewArea().size().y};
-        return {position, size};
+        if (gallery.getSelectedImage() == nullptr) {
+            auto const position = Vector2u{galleryArea().size().x, 0};
+            auto const size = window.getSize() - Vector2u{galleryArea().size().x, 0};
+            return {position, size};
+        } else {
+            auto const position = viewArea().position() + Vector2u{0, viewArea().size().y} + Vector2u{gap, gap};
+            auto const size = Vector2u{viewArea().size().x - 2 * gap, viewArea().size().y};
+            return {position, size};
+        }
     };
 
     auto buttonArea = [&](unsigned i, unsigned buttons) -> Rect<unsigned> {
-        auto size = Vector2u{buttonsArea().size().x, std::clamp(buttonsArea().size().y / buttons - gap, 30u, 50u)};
-        auto position = buttonsArea().position() + Vector2u{0, (size.y + gap) * i};
+        auto const size = Vector2u{buttonsArea().size().x,
+                                   std::clamp(buttonsArea().size().y /( buttons + 1) - gap, 30u, 50u)};
+        auto const position = buttonsArea().position() + Vector2u{0, (size.y + gap) * i};
         return {position, size};
     };
 
     auto buttonsRefresh = bool{true};
 
     auto makeButton = [&](Rect<unsigned> const &area, fsys::path const &dir, sf::Color color) -> Button {
-        return Button{font, dir.filename().string(), area, folderIconTexture, color, [&, dir] {
+        auto label = std::string{};
+        if (dir.filename().string().empty())
+            label = "[root]";
+        else
+            label = dir.filename().string();
+
+        return Button{font, label, area, folderIconTexture, color, [&, dir] {
             directory = Directory{dir};
             window.setTitle("Gallery in " + dir.string());
             gallery = ImageGallery{directory.getImages(), galleryArea(), columns(), gap};
@@ -102,7 +115,7 @@ int main(int argc, char **args) {
 
         auto i = std::size_t{1};
         for (auto const &dir: directories) {
-            buttons.emplace_back(makeButton(buttonArea(i, directories.size()), dir, sf::Color::Green));
+            buttons.emplace_back(makeButton(buttonArea(i, directories.size()), dir, sf::Color{0, 200, 0}));
             i++;
         }
         return buttons;
@@ -136,8 +149,10 @@ int main(int argc, char **args) {
                     if (event.mouseButton.x < 0 or event.mouseButton.y < 0)
                         break;
                     auto const mousePos = Vector2i{event.mouseButton.x, event.mouseButton.y}.cast<unsigned>();
-                    if (auto pos = gallery.globalPosToInAreaPos(mousePos))
+                    if (auto pos = gallery.globalPosToInAreaPos(mousePos)) {
                         gallery.pressed(*pos);
+                        directoriesButtons = makeButtons();
+                    }
                     for (auto &button: directoriesButtons)
                         button.mousePressed(mousePos);
                     break;

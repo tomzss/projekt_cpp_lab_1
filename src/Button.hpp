@@ -6,6 +6,7 @@
 #include <SFML/Graphics/Font.hpp>
 #include <SFML/System/String.hpp>
 #include "sfml/Rect.hpp"
+#include "SizedTexture.hpp"
 
 class Button {
 public:
@@ -29,4 +30,5 @@ private:
     sf::Color iconColor;
 
     void updateText();
+    ND SizedTexture sizedTexture() const;
 };
