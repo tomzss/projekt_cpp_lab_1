@@ -4,6 +4,7 @@
 #include "filesystem.hpp"
 #include "Image.hpp"
 
+/// Directory of images other directories (also containing images)
 class Directory {
 public:
     explicit Directory(fsys::path);

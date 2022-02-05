@@ -21,9 +21,12 @@ public:
     static bool isFormatSupported(sf::String const&);
 
 private:
+    /// Constructor is private. Use tryLoad to create Image.
     Image(fsys::path path, sf::Texture const &sfTexture);
 
     fsys::path path;
     sf::Texture sfTexture;
+
+    /// From SFML docs.
     static auto constexpr supportedFormats = {".bmp", ".png", ".tga", ".jpg", ".psd", ".hdr", ".pic"};
 };

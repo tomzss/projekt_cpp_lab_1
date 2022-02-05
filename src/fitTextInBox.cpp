@@ -25,10 +25,3 @@ void fitTextInBox(sf::Text &text, Vector2f const &boxSize) {
         return scaleToHeight(text, boxSize.y);
     return scaleToWidth(text, boxSize.x);
 }
-
-/// if you call it with fitTextInBox
-/// first call fitTextInBox, then setTextPosition
-void setTextPosition(sf::Text &text, Vector2f const &position) {
-    auto const additionalHeight = text.getGlobalBounds().top;
-    text.setPosition(position - Vector2{0.f, additionalHeight});
-}
